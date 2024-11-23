@@ -1,3 +1,5 @@
+`add picture here`
+
 # Why
 - Customizable
 - Cost effective
@@ -9,6 +11,7 @@
 - 3ct = 1" T connector
 
 ## Electronics
+- 1 ESP8266 (I used a 8266 NodeMCU but any ESP will work)
 - 4ct 50ct ws2815 ext rated LED strips (12V)
 - 4ct male 3 pin xconnect extension
 - 4ct female 3 pin xconnect extension
@@ -18,6 +21,7 @@
 
 # Diagram
 ```
+BASE
    A -- T -- A
  /      |      \
 A       |       A
@@ -26,5 +30,8 @@ A       |       A
  \      |      /
    A -- T -- A
 ```
+A = angled connector
+T = T connector
+| and -- = 1" pipe
 
 # Build
