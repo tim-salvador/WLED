@@ -18,6 +18,7 @@
 - 1ct Shift Leveler
 
 # Diagram
+```
    A -- T -- A
  /      |      \
 A       |       A
@@ -25,5 +26,6 @@ A       |       A
 A       |       A
  \      |      /
    A -- T -- A
+```
 
 # Build
