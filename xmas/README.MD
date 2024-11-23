@@ -19,6 +19,9 @@
 - 1ct 18G Fuse
 - 1ct Shift Leveler
 
+## Software
+- WLED
+
 # Diagram
 ```
 BASE
@@ -43,3 +46,10 @@ T = T connector
    - 4 and 8
    - 7 and 3
    - 2 and 5
+
+2. Use 2D Matrix Layout
+ - 8 panels each one 1W x 25H
+ - Need to set the X offset for each "panel"
+ - Need to set starting led for each "panel"
+
+
