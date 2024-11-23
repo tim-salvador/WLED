@@ -1,5 +1,4 @@
 # Why
-- Cheap
 - Customizable
 - Cost effective
 
