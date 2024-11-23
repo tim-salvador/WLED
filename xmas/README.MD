@@ -22,16 +22,24 @@
 # Diagram
 ```
 BASE
-   A -- T -- A
- /      |      \
-A       |       A
-|       T       |
-A       |       A
- \      |      /
-   A -- T -- A
+            5
+       A -- T -- A
+ 6   /      |      \   4
+    A       |       A
+7   |       T       |   3
+    A       |       A
+ 8   \      |      /   2
+       A -- T -- A
+            1
 ```
 A = angled connector
 T = T connector
 | and -- = 1" pipe
 
 # Build
+1. Each strip will cover opposite ends of the tree.
+   Data In | Data Out
+   - 1 and 5 
+   - 4 and 8
+   - 7 and 3
+   - 2 and 5
