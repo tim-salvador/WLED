@@ -1,66 +1,65 @@
+#!/usr/bin/python3
+
 import serial
 import json
-import time
+import sys
+import os
 
-# Replace '/dev/serial0' with the correct UART1 device if different
-UART_PORT = "/dev/serial0"
-BAUD_RATE = 115200  # Set the baud rate to match the ESP32
+# Validate arguments
+if len(sys.argv) < 4:
+    print("Usage: wled-serial-cmd.py <retrosys> <emul> <romfile> [state]")
+    sys.exit(1)
 
-# Open the serial port
-ser = serial.Serial(UART_PORT, BAUD_RATE, timeout=1)
+retrosys = sys.argv[1].upper()  # Convert retrosys to uppercase
+emul = sys.argv[2]
+romfile = sys.argv[3]
 
-# Function to send a JSON message to the ESP32
-def send_json_message(data):
-    try:
-        # Convert Python dictionary to JSON string
-        json_data = json.dumps(data)
-        # Send JSON string over serial to the ESP32
-        ser.write((json_data).encode())
-        print(f"Sent: {json_data}")
-    except Exception as e:
-        print(f"Error sending JSON: {e}")
+# Extract only the filename without extension
+romfile = os.path.basename(romfile)  # Get filename from full path
+romfile = os.path.splitext(romfile)[0]  # Remove the extension
 
-# Function to read a JSON message from the ESP32
-def read_json_message():
-    try:
-        # Read data from the ESP32
-        if ser.in_waiting > 0:
-            message = ser.readline().decode('utf-8').strip()
-            # Parse the message as JSON
-            json_data = json.loads(message)
-            print(f"Received: {json_data}")
-            return json_data
-    except json.JSONDecodeError:
-        print("Received non-JSON data.")
-    except Exception as e:
-        print(f"Error reading JSON: {e}")
-    return None
+# File path
+json_file_path = "/tmp/current-rom.txt"
 
-# Example usage
-if __name__ == "__main__":
-    try:
-        # Wait for serial communication to establish
-        time.sleep(2)
+# Create JSON data
+json_data = {"seg": [{"id": 0, "n": retrosys}, {"id": 1, "n": romfile}]}
 
-        # Example data to send (as a dictionary)
-        data_to_send = {
-            "on": "t",
-            "v": True
-             }
+# Write and Read JSON in a Single Operation
+with open(json_file_path, "w+") as out:
+    json.dump(json_data, out)
+    out.seek(0)  # Move cursor to the beginning
+    jsonfile = json.load(out)  # Read it back
 
-        # Send JSON data to ESP32
-        send_json_message(data_to_send)
+#print(jsonfile)
 
-        # Read JSON message from ESP32
-        while True:
-            received_data = read_json_message()
-            if received_data:
-                # Handle received data
-                break
-            time.sleep(1)  # Add a small delay between reads
+def send_json_to_wled(ser, json_data):
+    """Sends JSON data to WLED over serial."""
+    ser.write((json.dumps(json_data) + '\n').encode())
+    #print("Sent to WLED:", json_data)
 
-    except KeyboardInterrupt:
-        print("Terminating script.")
-    finally:
-        print("end of script.")
-        ser.close()  # Close the serial port on exit
+def read_json_from_wled(ser):
+    """Reads JSON data from WLED over serial."""
+    line = ser.readline().decode().strip()
+    return json.loads(line) if line else {}
+
+def get_current_state(ser):
+    """Gets and prints the current WLED state."""
+    send_json_to_wled(ser, {"v": True})
+    state = read_json_from_wled(ser)
+    print("Current state:", state)
+    return state
+
+# Open serial connection with error handling
+try:
+    ser = serial.Serial('/dev/ttyUSB0', 115200, timeout=2)  # Adjust timeout as needed
+except serial.SerialException as e:
+    print(f"Serial Error: {e}")
+    sys.exit(1)
+
+# Check if "state" argument is passed
+if len(sys.argv) > 4 and sys.argv[4].lower() == "state":
+    get_current_state(ser)
+    sys.exit(0)  # Exit after fetching state
+
+# Send correct JSON data to WLED
+send_json_to_wled(ser, jsonfile)
